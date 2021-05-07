@@ -4,10 +4,11 @@ from Algorithm import *
 from Objective import *
 
 #Define parameters
-PartitionLength    = 2
-Archetypes         = np.array([[1, 0, 0, 0], [0,0 , 1, 0]])
+PartitionLength    = 3
+Archetypes1        = np.array([[1, 0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,1]])
+Archetypes         = Archetypes1
 NumberOfArchetypes = len(Archetypes)
-MicroSampleSize    = 1000000
+MicroSampleSize    = 50000
 NumberOfAtoms      = PartitionLength**2
 PlanSize           = NumberOfAtoms**2
 TotalDimension     = NumberOfAtoms + NumberOfArchetypes * PlanSize
@@ -15,22 +16,20 @@ TotalDimension     = NumberOfAtoms + NumberOfArchetypes * PlanSize
 
 
 #Initial Matrix
-#[-1,-100,-1,-100,-1,-100,-1,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-1,-100,-1,-100,-100,-100,-100,-100]
-#[0.5,0,0.5,0,0.5,0,0.5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5,0,0.5,0,0,0,0,0]
 MeanMatrix          = np.array(np.random.rand(TotalDimension))
 CovMatrix           = np.identity(TotalDimension)
 
 
 
 def Likelihood(Sample):
-    return ObjectiveRelu(Sample, PartitionLength, Archetypes)
+    return ObjectiveRelu2(Sample, PartitionLength, Archetypes)
 
 
 #Itterating Algorithm
 
 for i in range (1):
     MeanMatrix = np.array(np.random.rand(TotalDimension))
-    OneStep(MeanMatrix, CovMatrix, MicroSampleSize, Likelihood, 50)
+    OneStep(MeanMatrix, CovMatrix, MicroSampleSize, Likelihood, 100)
 
 
 #Visualisation
