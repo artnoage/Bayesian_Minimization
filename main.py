@@ -8,7 +8,7 @@ PartitionLength    = 3
 Archetypes1        = np.array([[1, 0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,1]])
 Archetypes         = Archetypes1
 NumberOfArchetypes = len(Archetypes)
-MicroSampleSize    = 100000
+MicroSampleSize    = 10**10
 NumberOfAtoms      = PartitionLength**2
 PlanSize           = NumberOfAtoms**2
 TotalDimension     = NumberOfAtoms + NumberOfArchetypes * PlanSize
@@ -21,7 +21,7 @@ CovMatrix            = np.identity(TotalDimension)
 
 
 def LogLikelihood(Sample):
-    return Objective(Sample, Archetypes, BarycenterTransformation,PlanTransformation)
+    return Objective(Sample, Archetypes, BarycenterTransformation, PlanTransformation)
 
 
 #Itterating Algorithm
