@@ -3,12 +3,18 @@ import itertools
 from Gaussians import *
 
 def Transformation(Batch,Inputtype,Transformationfunction):
-    if Inputtype=="Barycenter":
+    if Inputtype=="Barycenter" and Transformationfunction=="Normalized Exponential":
         Batch=np.exp(Batch)
         BatchNorm=np.sum(Batch,axis=1,keepdims=True)
         Batch=Batch/BatchNorm
-    if Inputtype=="Plans":
+    elif Inputtype=="Plans" and Transformationfunction=="Normalized Exponential":
         Batch=np.exp(Batch)
+        BatchNorm=np.sum(Batch,axis=2,keepdims=True)
+        Batch=Batch/BatchNorm
+    elif Inputtype=="Barycenter" and Transformationfunction=="Normalized":
+        BatchNorm=np.sum(Batch,axis=1,keepdims=True)
+        Batch=Batch/BatchNorm
+    elif Inputtype=="Plans" and Transformationfunction=="Normalized":
         BatchNorm=np.sum(Batch,axis=2,keepdims=True)
         Batch=Batch/BatchNorm
     return Batch
@@ -17,7 +23,7 @@ def Penalty(FirstConfiguration,SecondConfiguration,Metric):
     if Metric=="Square":
         return np.sum(np.linalg.norm(FirstConfiguration -SecondConfiguration,axis=2),axis=1)
     if Metric=="Entropy":
-        A=np.sum(np.sum(FirstConfiguration*(np.log(FirstConfiguration)-np.log(SecondConfiguration)),axis=2),axis=1)
+        A=np.sum(np.sum(np.abs(FirstConfiguration)*(np.log(np.abs(FirstConfiguration))-np.log(np.abs(SecondConfiguration))),axis=2),axis=1)
         return A
 
 def LogLikelihood(Batch, args):
@@ -67,9 +73,9 @@ def LogLikelihood(Batch, args):
     ArchetypePenalty  = Penalty(ArchetypeMargin,Archetypes,args[3])
 
     # This punishes negative values.
-    ReluData = np.sum(np.minimum(Batch - 0.001, 0), axis=1)
+    ReluData = np.sum(np.minimum(Batch - 0.01, 0), axis=1)
 
-    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty
+    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty- 10*ReluData
 
     return TotalCost
 

@@ -6,11 +6,11 @@ from Objective import *
 
 
 #Provide the Images
-Archetypes   = np.array([[1, 0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,1]])
+Archetypes   = np.array([[0.92, 0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01], [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.92]])
 
 
 #Itterating Algorithm
-OneStep(Archetypes,Transformation="Les",BarycenterPenalty="Entropy",ArchetypePenalty="Square",SampleSize=2*10**5,NumberOfIterations=100)
+OneStep(Archetypes,Transformation="Normalized",BarycenterPenalty="Entropy",ArchetypePenalty="Entropy",SampleSize=5*10**5,NumberOfIterations=10)
 
 
 #Visualisation
