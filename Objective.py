@@ -2,15 +2,25 @@ import numpy as np
 import itertools
 from Gaussians import *
 
-def Transformation(Batch):
+def BarycenterTransformation(Batch):
     Batch=np.exp(Batch)
+    BatchNorm=np.sum(Batch,axis=1,keepdims=True)
+    Batch=Batch/BatchNorm
+
     return Batch
 
-def Objective(Batch, Archetypes,Transformation):
-    PartitionLength= np.int(np.sqrt(np.sqrt(len(Archetypes[0]))))
+def PlanTransformation(Batch):
+    Batch=np.exp(Batch)
+    BatchNorm=np.sum(Batch,axis=2,keepdims=True)
+    Batch=Batch/BatchNorm
+    return Batch
+
+def Objective(Batch, Archetypes,BarycenterTransformation,PlanTransformation):
+    PartitionLength= np.int(np.sqrt(len(Archetypes[0])))
     NumberOfAtoms = PartitionLength ** 2
-    PlanSize = NumberOfAtoms ** 2
     NumberOfArchetypes=len(Archetypes)
+
+    #Creating the cost Matrix
     T = np.linspace(0, 1, PartitionLength)
     couples = np.array(np.meshgrid(T, T)).T.reshape(-1, 2)
     x = np.array(list(itertools.product(couples, repeat=2)))
@@ -21,22 +31,36 @@ def Objective(Batch, Archetypes,Transformation):
     CostMatrix = CostMatrix + np.zeros((len(Batch), NumberOfArchetypes, 1))
     Archetypes = Archetypes + np.zeros((len(Batch), NumberOfArchetypes, 1))
 
-    Batch               = np.exp(Batch)
-    Barycenter         = np.array([Batch[:, :NumberOfAtoms], Batch[:, :NumberOfAtoms]]).transpose(1, 0, 2)
-    BarycenterNorm     = np.array([[np.sum(Sample[0],keepdims=True),np.sum(Sample[1],keepdims=True)]for Sample in Barycenter])
-    Barycenter         = Barycenter[:,:]/BarycenterNorm[:,:]
-    Plans              = Batch[:, NumberOfAtoms:].reshape(-1, NumberOfArchetypes, PlanSize)
-    PlansNorm          = np.array([[ np.sum(Sample[0],keepdims=True),np.sum(Sample[1],keepdims=True) ]for Sample in Plans])
-    Plans = Plans / PlansNorm
+    #Isolating the Barycenter from the rest of the input
+    Barycenter         = Batch[:,:NumberOfAtoms]
+    # We use the tranformation for the Barycenter.
+    Barycenter = BarycenterTransformation(Barycenter)
+    # Creating a copy of the Barycenter candidate that will correspond to each Archetype
+    Barycenter         = np.array([Barycenter, Barycenter]).transpose(1, 0, 2)
+
+    #Isolating the Plans from the rest of the input
+    Plans              = Batch[:,NumberOfAtoms:]
+
+    #Spliting The plans
+    Plans              = np.array(np.split(Plans,NumberOfArchetypes,axis=1)).transpose(1,0,2)
+
+    # We use the tranformation for the plans
+    Plans              = PlanTransformation(Plans)
+
 
     TransportationCost = np.sum(np.sum(CostMatrix[:,:,:]*Plans[:,:,:],axis=2),axis=1)
-    BarycenterMargin  = np.sum(Plans.reshape(-1,NumberOfArchetypes,NumberOfAtoms,NumberOfAtoms).transpose(0,1,3,2),axis=3)
 
+    #Calculating the Margins of each plan.
+    BarycenterMargin   = np.sum(Plans.reshape(-1,NumberOfArchetypes,NumberOfAtoms,NumberOfAtoms).transpose(0,1,3,2),axis=3)
     ArchetypeMargin   = np.sum(Plans.reshape(-1,NumberOfArchetypes,NumberOfAtoms,NumberOfAtoms),axis=3)
+
+    #Calculating the penalty for each plan.
     BarycenterPenalty = np.sum(np.linalg.norm(BarycenterMargin -Barycenter,axis=2),axis=1)
     ArchetypePenalty  = np.sum(np.linalg.norm(ArchetypeMargin -Archetypes,axis=2),axis=1)
 
+    # This punishes negative values.
     ReluData = np.sum(np.minimum(Batch - 0.001, 0), axis=1)
+
     TotalCost = TransportationCost + 5 * ArchetypePenalty + 5 * BarycenterPenalty
     return TotalCost
 
