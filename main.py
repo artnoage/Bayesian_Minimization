@@ -3,31 +3,14 @@ from Visualisation import *
 from Algorithm import *
 from Objective import *
 
-#Define parameters
-PartitionLength    = 3
-Archetypes1        = np.array([[1, 0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,1]])
-Archetypes         = Archetypes1
-NumberOfArchetypes = len(Archetypes)
-MicroSampleSize    = 10**10
-NumberOfAtoms      = PartitionLength**2
-PlanSize           = NumberOfAtoms**2
-TotalDimension     = NumberOfAtoms + NumberOfArchetypes * PlanSize
-
-#Initial Matrix
-
-#MeanMatrix          = np.array(np.random.rand(TotalDimension))
-CovMatrix            = np.identity(TotalDimension)
 
 
-
-def LogLikelihood(Sample):
-    return Objective(Sample, Archetypes, BarycenterTransformation, PlanTransformation)
+#Provide the Images
+Archetypes   = np.array([[1, 0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,1]])
 
 
 #Itterating Algorithm
-
-MeanMatrix = np.array(np.random.rand(TotalDimension))
-OneStep(MeanMatrix, CovMatrix, MicroSampleSize, LogLikelihood,20)
+OneStep(Archetypes,Transformation="Les",BarycenterPenalty="Entropy",ArchetypePenalty="Square",SampleSize=2*10**5,NumberOfIterations=100)
 
 
 #Visualisation
