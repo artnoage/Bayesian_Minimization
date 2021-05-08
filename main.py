@@ -3,6 +3,7 @@ from Visualisation import *
 from Algorithm import *
 from Objective import *
 
+NumberOfIterations=100
 
 
 #Provide the Images
@@ -10,7 +11,13 @@ Archetypes   = np.array([[0.92, 0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01], [0.01,
 
 
 #Itterating Algorithm
-OneStep(Archetypes,Transformation="Normalized",BarycenterPenalty="Entropy",ArchetypePenalty="Entropy",SampleSize=5*10**5,NumberOfIterations=10)
+#Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square and Entropy.
+OneStep(Archetypes, Transformation="Exponential Normalized", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
+OneStep(Archetypes, Transformation="Exponential Normalized", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
+OneStep(Archetypes, Transformation="Normalized", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
+OneStep(Archetypes, Transformation="Exponential", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
+OneStep(Archetypes, Transformation="No", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
+OneStep(Archetypes, Transformation="Normalized", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
 
 
 #Visualisation

@@ -3,14 +3,18 @@ import itertools
 from Gaussians import *
 
 def Transformation(Batch,Inputtype,Transformationfunction):
-    if Inputtype=="Barycenter" and Transformationfunction=="Normalized Exponential":
+    if Inputtype == "Barycenter" and Transformationfunction == "Normalized Exponential":
+        Batch = np.exp(Batch)
+        BatchNorm = np.sum(Batch, axis=1, keepdims=True)
+        Batch = Batch / BatchNorm
+    elif Inputtype == "Plans" and Transformationfunction == "Normalized Exponential":
+        Batch = np.exp(Batch)
+        BatchNorm = np.sum(Batch, axis=2, keepdims=True)
+        Batch = Batch / BatchNorm
+    elif Inputtype=="Barycenter" and Transformationfunction=="Exponential":
         Batch=np.exp(Batch)
-        BatchNorm=np.sum(Batch,axis=1,keepdims=True)
-        Batch=Batch/BatchNorm
-    elif Inputtype=="Plans" and Transformationfunction=="Normalized Exponential":
+    elif Inputtype=="Plans" and Transformationfunction=="Exponential":
         Batch=np.exp(Batch)
-        BatchNorm=np.sum(Batch,axis=2,keepdims=True)
-        Batch=Batch/BatchNorm
     elif Inputtype=="Barycenter" and Transformationfunction=="Normalized":
         BatchNorm=np.sum(Batch,axis=1,keepdims=True)
         Batch=Batch/BatchNorm
@@ -75,7 +79,7 @@ def LogLikelihood(Batch, args):
     # This punishes negative values.
     ReluData = np.sum(np.minimum(Batch - 0.01, 0), axis=1)
 
-    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty- 10*ReluData
+    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty- 20*ReluData
 
     return TotalCost
 
