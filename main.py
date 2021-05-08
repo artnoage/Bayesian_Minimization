@@ -8,28 +8,27 @@ PartitionLength    = 3
 Archetypes1        = np.array([[1, 0,0,0,0,0,0,0,0], [0,0,0,0,0,0,0,0,1]])
 Archetypes         = Archetypes1
 NumberOfArchetypes = len(Archetypes)
-MicroSampleSize    = 50000
+MicroSampleSize    = 10000
 NumberOfAtoms      = PartitionLength**2
 PlanSize           = NumberOfAtoms**2
 TotalDimension     = NumberOfAtoms + NumberOfArchetypes * PlanSize
 
 
-
+print(3)
 #Initial Matrix
-MeanMatrix          = np.array(np.random.rand(TotalDimension))
-CovMatrix           = np.identity(TotalDimension)
+#MeanMatrix          = np.array(np.random.rand(TotalDimension))
+CovMatrix            = np.identity(TotalDimension)
 
 
 
 def Likelihood(Sample):
-    return ObjectiveRelu2(Sample, PartitionLength, Archetypes)
+    return Objective(Sample, PartitionLength, Archetypes,Transformation)
 
 
 #Itterating Algorithm
 
-for i in range (1):
-    MeanMatrix = np.array(np.random.rand(TotalDimension))
-    OneStep(MeanMatrix, CovMatrix, MicroSampleSize, Likelihood, 100)
+MeanMatrix = np.array(np.random.rand(TotalDimension))
+OneStep(MeanMatrix, CovMatrix, MicroSampleSize, Likelihood,10)
 
 
 #Visualisation
