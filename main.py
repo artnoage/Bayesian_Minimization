@@ -3,7 +3,7 @@ from VisualisationBarycenter import *
 from Algorithm import *
 from Objective import *
 
-NumberOfIterations=50
+NumberOfIterations=500
 SampleSize=100000
 
 #Provide the Images
