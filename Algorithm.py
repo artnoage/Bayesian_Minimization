@@ -14,15 +14,17 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
 
     for i in range(NumberOfIterations):
         Samples = SampleGeneration(MeanMatrix, CovMatrix, SampleSize)
-        LogLikelihoodValues = LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
+        LogLikelihoodValues = 0.1*LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
         Weights = np.exp(-LogLikelihoodValues)
 
         MeanMatrix = np.array(GaussianReconstruction(Samples, Weights)[0])
         CovMatrix  = np.array(GaussianReconstruction(Samples, Weights)[1])
+        #CovMatrix = np.identity(TotalDimension)
         factor=np.min(np.diag(CovMatrix))
-        CovMatrix=CovMatrix/factor
+        #print(factor)
+        CovMatrix=0.0005*CovMatrix/factor
         Barycenter=np.array(Transformation([MeanMatrix[:NumberOfAtoms]],Inputtype="Barycenter", Transformationfunction=TransformationFunction))
         print("The minimum loglikelihood value is ",np.min(LogLikelihoodValues),"\n")
-        print("The mean barycenter is  ", Barycenter ,  "\n")
-        print(BarycenterPenalty,"\n","\n")
+    print("The mean barycenter is  ", Barycenter ,  "\n")
+    #print(BarycenterPenalty,"\n","\n")
     return Barycenter

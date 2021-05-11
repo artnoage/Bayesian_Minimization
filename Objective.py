@@ -57,7 +57,8 @@ def LogLikelihood(Batch, args):
     Barycenter         = Transformation(Barycenter,"Barycenter",args[1])
 
     # Creating a copy of the Barycenter candidate that will correspond to each Archetype
-    Barycenter         = np.array([Barycenter, Barycenter]).transpose(1, 0, 2)
+
+    Barycenter         = np.repeat([Barycenter],NumberOfArchetypes,axis=0).transpose(1, 0, 2)
 
     #Isolating the Plans from the rest of the input
     Plans              = Batch[:,NumberOfAtoms:]
