@@ -1,25 +1,28 @@
 import numpy as np
-from Visualisation import *
+from VisualisationBarycenter import *
 from Algorithm import *
 from Objective import *
 
-NumberOfIterations=100
-
+NumberOfIterations=1
+SampleSize=50000
 
 #Provide the Images
-Archetypes   = np.array([[0.92, 0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01], [0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.01,0.92]])
+Archetypes   = np.array([[0.3, 0.3,0.3,0.01,0.01,0.02,0.02,0.02,0.02], [0.02,0.02,0.02,0.02,0.01,0.01,0.3,0.3,0.3],[0.3, 0.3,0.1,0.01,0.01,0.02,0.2,0.02,0.02], [0.02,0.02,0.02,0.02,0.01,0.3,0.01,0.3,0.3]])
 
 
 #Itterating Algorithm
 #Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square and Entropy.
-OneStep(Archetypes, Transformation="Exponential Normalized", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
-OneStep(Archetypes, Transformation="Exponential Normalized", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
-OneStep(Archetypes, Transformation="Normalized", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
-OneStep(Archetypes, Transformation="Exponential", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
-OneStep(Archetypes, Transformation="No", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
-OneStep(Archetypes, Transformation="Normalized", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=10**5, NumberOfIterations=NumberOfIterations)
 
+for i in range(1):
+    Barycenter=OneStep(Archetypes, TransformationFunction="Normalized Exponential", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#    Barycenter=OneStep(Archetypes, TransformationFunction="Normalized Exponential", BarycenterPenalty="Entropy", ArchetypePenalty="Entropy", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#    Barycenter=OneStep(Archetypes, TransformationFunction="Normalized Exponential", BarycenterPenalty="RevEntropy", ArchetypePenalty="RevEntropy", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#OneStep(Archetypes, TransformationFunction="Normalized Exponential", BarycenterPenalty="RevEntropy", ArchetypePenalty="Entropy", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#OneStep(Archetypes, TransformationFunction="Normalized Exponential", BarycenterPenalty="Entropy", ArchetypePenalty="RevEntropy", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#   OneStep(Archetypes, TransformationFunction="Normalized", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#    Barycenter=OneStep(Archetypes, TransformationFunction="Normalized", BarycenterPenalty="RevEntropy", ArchetypePenalty="RevEntropy", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
+#OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Square", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations)
 
 #Visualisation
-#ani=visualise(Objective,MeanMatrices,CovMatrices)
-#plt.show()
+ani=visualise(Archetypes,Barycenter)
+plt.show()

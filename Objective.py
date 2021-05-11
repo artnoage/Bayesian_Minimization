@@ -25,10 +25,13 @@ def Transformation(Batch,Inputtype,Transformationfunction):
 
 def Penalty(FirstConfiguration,SecondConfiguration,Metric):
     if Metric=="Square":
-        return np.sum(np.linalg.norm(FirstConfiguration -SecondConfiguration,axis=2),axis=1)
+        A = np.sum(np.linalg.norm(FirstConfiguration -SecondConfiguration,axis=2),axis=1)
     if Metric=="Entropy":
-        A=np.sum(np.sum(np.abs(FirstConfiguration)*(np.log(np.abs(FirstConfiguration))-np.log(np.abs(SecondConfiguration))),axis=2),axis=1)
-        return A
+        A = np.sum(np.sum(np.abs(FirstConfiguration)*(np.log(np.abs(FirstConfiguration))-np.log(np.abs(SecondConfiguration))),axis=2),axis=1)
+    if Metric == "RevEntropy":
+        A = np.sum(np.sum(np.abs(SecondConfiguration) * (np.log(np.abs(SecondConfiguration)) - np.log(np.abs(FirstConfiguration))),axis=2), axis=1)
+
+    return A
 
 def LogLikelihood(Batch, args):
     Archetypes=args[0]
@@ -77,9 +80,14 @@ def LogLikelihood(Batch, args):
     ArchetypePenalty  = Penalty(ArchetypeMargin,Archetypes,args[3])
 
     # This punishes negative values.
-    ReluData = np.sum(np.minimum(Batch - 0.01, 0), axis=1)
 
-    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty- 20*ReluData
+    if args[1]!= "Normalized Exponential":
+        ReluData = np.sum(np.minimum(Batch-0.001, np.zeros((len(Batch),len(Batch[0])))), axis=1)
+    else :
+        ReluData=0
+
+
+    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty -10*ReluData
 
     return TotalCost
 
