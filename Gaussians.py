@@ -1,14 +1,14 @@
 import numpy as np
 
-def SampleGeneration(MeanMatrix,CovMatrix,samplesize):
+def SampleGeneration(PriorType,MeanMatrix,CovMatrix,samplesize):
     data = np.random.multivariate_normal(MeanMatrix,CovMatrix,samplesize).astype("float64")
     return data
 
 #Recover Mean and covariance based on Data
 
-def GaussianReconstruction(s,w):
-    mu = np.ma.average(s, axis=0, weights=w)
-    Sigma = np.cov(s.T,aweights=w)
-    return mu, Sigma
+def GaussianReconstruction(PriorType,Samples,Weights):
+    MeanMatrix = np.ma.average(Samples, axis=0, weights=Weights)
+    CovMatrix = np.cov(Samples.T,aweights=Weights)
+    return MeanMatrix, CovMatrix
 
 

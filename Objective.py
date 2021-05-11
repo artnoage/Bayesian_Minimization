@@ -83,12 +83,12 @@ def LogLikelihood(Batch, args):
     # This punishes negative values.
 
     if args[1]!= "Normalized Exponential":
-        ReluData = np.sum(np.minimum(Batch-0.001, np.zeros((len(Batch),len(Batch[0])))), axis=1)
+        ReluData = np.sum(np.minimum(Batch-0.00001, np.zeros((len(Batch),len(Batch[0])))), axis=1)
     else :
         ReluData=0
 
 
-    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty -10*ReluData
+    TotalCost = TransportationCost + 15*ArchetypePenalty + 15*BarycenterPenalty -1000*ReluData
 
     return TotalCost
 
