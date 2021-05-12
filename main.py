@@ -3,8 +3,8 @@ from VisualisationBarycenter import *
 from Algorithm import *
 from Objective import *
 
-NumberOfIterations=100000
-SampleSize=10000
+NumberOfIterations=10000
+SampleSize=1000
 
 #Provide the Images
 Archetypes   = np.array([[0.3, 0.3,0.3,0.01,0.01,0.02,0.02,0.02,0.02], [0.02,0.02,0.02,0.02,0.01,0.01,0.3,0.3,0.3]])
@@ -12,7 +12,7 @@ NumberOfAtoms = len(Archetypes[0])
 NumberOfArchetypes = len(Archetypes)
 PlanSize = NumberOfAtoms ** 2
 TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
-StepSize= 10**(-7)
+StepSize=10**(-4)
 
 
 #Initializing Mean and Covariance
@@ -29,10 +29,10 @@ CovMatrixInitialization = np.identity(TotalDimension)
 #Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square and Entropy.
 
 
-
 MeanMatrix, CovMatrix =OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Square",PriorType="Gaussian",
                               SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
                               CovMatrixInitialization=CovMatrixInitialization,StepSize=StepSize)
+
 #MeanMatrix, CovMatrix =OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="RevEntropy", ArchetypePenalty="RevEntropy",PriorType="Gaussian",
 # SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,CovMatrixInitialization=CovMatrixInitialization,StepSize=StepSize)
 print(MeanMatrix)
