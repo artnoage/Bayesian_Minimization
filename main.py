@@ -3,7 +3,7 @@ from VisualisationBarycenter import *
 from Algorithm import *
 from Objective import *
 
-NumberOfIterations=10000
+NumberOfIterations=100000
 SampleSize=1000
 
 #Provide the Images
@@ -12,24 +12,24 @@ NumberOfAtoms = len(Archetypes[0])
 NumberOfArchetypes = len(Archetypes)
 PlanSize = NumberOfAtoms ** 2
 TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
-StepSize=10**(-4)
+StepSize=10**(-5)
 
 
 #Initializing Mean and Covariance
 
-MeanMatrixInitialization = np.array(np.random.rand(TotalDimension))
-CovMatrixInitialization = np.identity(TotalDimension)
+#MeanMatrixInitialization = np.ones(TotalDimension)
+#CovMatrixInitialization = np.identity(TotalDimension)
 
-#with open('Square.npy', 'rb') as g:
-#    MeanMatrixInitialization=np.load(g)
-#    CovMatrixInitialization=np.load(g)
+with open('Entropy.npy', 'rb') as g:
+    MeanMatrixInitialization=np.load(g)
+    CovMatrixInitialization=np.load(g)
 
 
 #Itterating Algorithm
 #Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square and Entropy.
 
 
-MeanMatrix, CovMatrix =OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Square",PriorType="Gaussian",
+MeanMatrix, CovMatrix =OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Entropy",PriorType="Gaussian",
                               SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
                               CovMatrixInitialization=CovMatrixInitialization,StepSize=StepSize)
 
@@ -37,7 +37,7 @@ MeanMatrix, CovMatrix =OneStep(Archetypes, TransformationFunction="No", Barycent
 # SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,CovMatrixInitialization=CovMatrixInitialization,StepSize=StepSize)
 print(MeanMatrix)
 
-with open('Square.npy', 'wb') as f:
+with open('Entropy.npy', 'wb') as f:
     np.save(f,MeanMatrix)
     np.save(f,CovMatrix)
 
