@@ -15,8 +15,8 @@ def GaussianReconstruction(PriorType,Samples,Weights):
         MeanMatrix = np.ma.average(Samples, axis=0, weights=Weights)
         CovMatrix = np.cov(Samples.T,aweights=Weights)
     elif PriorType=="LogNormal":
-        MeanMatrix = np.log(np.ma.average(Samples, axis=0, weights=Weights))
-        CovMatrix = np.cov(Samples.T, aweights=Weights)
+        MeanMatrix = np.log(np.ma.average(Samples, axis=0, weights=Weights))-0.5
+        CovMatrix = np.log(np.cov(Samples.T, aweights=Weights)/np.tensordot(MeanMatrix,MeanMatrix,axes=0)+1)
     return MeanMatrix, CovMatrix
 
 

@@ -90,7 +90,7 @@ def LogLikelihood(Batch, args):
 
     TotalCost = TransportationCost + 10*ArchetypePenalty + 5*BarycenterPenalty -20*ReluData
 
-    return 0.1*TotalCost
+    return 0.5*TotalCost
 
 
 

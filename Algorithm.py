@@ -14,7 +14,6 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         Weights = np.exp(-LogLikelihoodValues)
 
         MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
-        #CovMatrix  = np.identity(171)
         CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
         if StepSize!="Natural":
             factor=np.min(np.diag(CovMatrix))
