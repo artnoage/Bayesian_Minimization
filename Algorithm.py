@@ -1,5 +1,3 @@
-import numpy as np
-from Gaussians import *
 from Objective import *
 
 def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization,StepSize):
@@ -20,5 +18,5 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
             CovMatrix=StepSize*CovMatrix/factor
         Barycenter=np.array(Transformation([MeanMatrix[:NumberOfAtoms]],Inputtype="Barycenter", Transformationfunction=TransformationFunction))
         print("The minimum loglikelihood value is ", np.min(LogLikelihoodValues), "\n")
-    print("The mean barycenter is  ", Barycenter ,  "\n")
+        print("The mean barycenter is  ", Barycenter ,  "\n")
     return MeanMatrix, CovMatrix

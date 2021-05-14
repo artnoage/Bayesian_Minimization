@@ -1,4 +1,3 @@
-import numpy as np
 import itertools
 from Gaussians import *
 
@@ -25,15 +24,17 @@ def Transformation(Batch,Inputtype,Transformationfunction):
 
 def Penalty(FirstConfiguration,SecondConfiguration,Metric):
     if Metric=="Square":
-        A = np.sum(np.linalg.norm(FirstConfiguration -SecondConfiguration,axis=2),axis=1)
+        Penalty = np.sum(np.linalg.norm(FirstConfiguration -SecondConfiguration,axis=2),axis=1)
     if Metric=="Entropy":
-        A = np.sum(np.sum(np.abs(FirstConfiguration)*(np.log(np.abs(FirstConfiguration))-np.log(np.abs(SecondConfiguration))),axis=2),axis=1)
+        Penalty = np.sum(np.sum(np.abs(FirstConfiguration)*(np.log(np.abs(FirstConfiguration))-np.log(np.abs(SecondConfiguration))),axis=2),axis=1)
     if Metric == "RevEntropy":
-        A = np.sum(np.sum(np.abs(SecondConfiguration) * (np.log(np.abs(SecondConfiguration)) - np.log(np.abs(FirstConfiguration))),axis=2), axis=1)
+        Penalty = np.sum(np.sum(np.abs(SecondConfiguration) * (np.log(np.abs(SecondConfiguration)) - np.log(np.abs(FirstConfiguration))),axis=2), axis=1)
 
-    return A
+    return Penalty
+
 
 def LogLikelihood(Batch, args):
+
     Archetypes=args[0]
     PartitionLength= np.int(np.sqrt(len(Archetypes[0])))
     NumberOfAtoms = PartitionLength ** 2
@@ -88,7 +89,7 @@ def LogLikelihood(Batch, args):
         ReluData=0
 
 
-    TotalCost = TransportationCost + 10*ArchetypePenalty + 5*BarycenterPenalty -20*ReluData
+    TotalCost = TransportationCost + 5*ArchetypePenalty + 5*BarycenterPenalty -10*ReluData
 
     return 0.5*TotalCost
 
