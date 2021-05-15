@@ -20,12 +20,14 @@ TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
 #MeanMatrixInitialization = np.zeros(TotalDimension)
 #CovMatrixInitialization = np.identity(TotalDimension)
 
-with open('LogNormal.npy', 'rb') as g:
-    MeanMatrixInitialization=np.load(g)
-    CovMatrixInitialization=np.load(g)
+#with open('LogNormal.npy', 'rb') as g:
+#    MeanMatrixInitialization=np.load(g)
+#    CovMatrixInitialization=np.load(g)
 
-#MeanMatrixInitialization=np.zeros(TotalDimension)
-#CovMatrixInitialization=np.identity(TotalDimension)
+MeanMatrixInitializationPart1=np.ones(NumberOfAtoms)/NumberOfAtoms
+MeanMatrixInitializationPart2=np.ones((NumberOfAtoms**2)*NumberOfArchetypes)/(NumberOfAtoms**2)
+MeanMatrixInitialization=np.concatenate((MeanMatrixInitializationPart1,MeanMatrixInitializationPart2),axis=0)
+CovMatrixInitialization=np.identity(TotalDimension)/100
 
 #Itterating Algorithm
 
@@ -36,14 +38,6 @@ MeanMatrix, CovMatrix = OneStep(Archetypes, TransformationFunction="No", Barycen
                               SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
                               CovMatrixInitialization=CovMatrixInitialization)
 
-#MeanMatrix, CovMatrix =OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="RevEntropy", ArchetypePenalty="RevEntropy",PriorType="Gaussian",
-# SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,CovMatrixInitialization=CovMatrixInitialization,StepSize=StepSize)
-
-
-
-with open('LogNormal.npy', 'wb') as f:
-    np.save(f,MeanMatrix)
-    np.save(f,CovMatrix)
 
 #Visualisation
 #ani=visualise(Archetypes,Barycenter)
