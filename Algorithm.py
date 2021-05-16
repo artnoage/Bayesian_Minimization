@@ -1,4 +1,5 @@
 from Objective import *
+from Gaussians import *
 
 def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization):
 
@@ -11,14 +12,18 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         Weights = np.exp(-LogLikelihoodValues)
         MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
         CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
-        if  i%30==0 and 0==0:
-            Factor=np.max(np.diag(CovMatrix))
-            Barycenter=np.array(Transformation([MeanMatrix[:NumberOfAtoms]],Inputtype="Barycenter", Transformationfunction=TransformationFunction))
-            print("The minimum loglikelihood value is ", np.min(LogLikelihoodValues), "\n")
-            print("The mean barycenter is  ", Barycenter ,  "\n")
-            CovMatrix = np.max([Factor,10**(-6)]) * np.identity(171)
-        if  i%900==899:
-            with open('LogNormal.npy', 'wb') as f:
-                np.save(f, MeanMatrix)
-                np.save(f, CovMatrix)
+        Factor=np.max(np.diag(CovMatrix))
+        print(Factor)
+        if i%500==499:
+            CovMatrix = np.identity(171)/1000
+        else:
+            CovMatrix = CovMatrix
+        Barycenter = np.array(Transformation([MeanMatrix[:NumberOfAtoms]], Inputtype="Barycenter",Transformationfunction=TransformationFunction))
+
+        print("The minimum loglikelihood value is ", np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-10:][::-1]]), "\n")
+        print("The mean barycenter is  ", Barycenter ,  "\n")
+
+    with open('LogNormal.npy', 'wb') as f:
+        np.save(f, MeanMatrix)
+        np.save(f, CovMatrix)
     return MeanMatrix, CovMatrix

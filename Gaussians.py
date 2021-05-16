@@ -1,4 +1,5 @@
 import numpy as np
+from TransformationsAndPenalties import *
 
 def SampleGeneration(PriorType,MeanMatrix,CovMatrix,samplesize):
     if PriorType=="Gaussian":
