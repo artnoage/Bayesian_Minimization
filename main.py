@@ -17,7 +17,7 @@ Archetypes   = np.array([A1, A2])
 
 #Initializing Mean and Covariance
 
-MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="Load",CovMatrix="New",Factor=10**(-5))
+MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="Load",CovMatrix="New",Factor=10**(-4))
 
 
 

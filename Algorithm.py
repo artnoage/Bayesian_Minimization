@@ -40,28 +40,39 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
     MeanMatrix = MeanMatrixInitialization
     CovMatrix = CovMatrixInitialization
-    Factor = np.average(np.diag(CovMatrix))
+    Factor = np.max(np.diag(CovMatrix))
 
     for i in range(NumberOfIterations):
+
+        # Here we generate the Samples and calculate the  weights
+
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
-        LogLikelihoodValues = LoglikelihoodFactor*LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
-        Weights = np.exp(-LogLikelihoodValues)
+        LogLikelihoodValues = LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
+
+        print("The minimum loglikelihood value is ",
+              np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
+        LoglikelihoodValuesNormalized=LoglikelihoodFactor*LogLikelihoodValues
+
+        Weights = np.exp(-LoglikelihoodValuesNormalized)
+
+        #  Here we find the best fit for Mean and Covariance.
         MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
         CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
-        CovNormal="Simple"
 
-        if CovNormal=="Simple":
-            Factor1=Factor/np.average(np.diag(CovMatrix))
-            CovMatrix=Factor1*CovMatrix
-        elif CovNormal=="Id":
-            CovMatrix=Factor*np.identity(TotalDimension)
+        #If we like, we normalize a bit.
+        CovNormal="Yes"
+        if CovNormal=="Yes":
+            CovMatrix=Factor*(CovMatrix/np.max(np.diag(CovMatrix)))
 
-        Barycenter = np.array(Transformation([MeanMatrix[4:12]], Inputtype="Barycenter",Transformationfunction=TransformationFunction))
-        print("The minimum loglikelihood value is ", np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
-        print("The mean barycenter is  ", Barycenter ,  "\n")
+
+        if i%100==99:
+            Barycenter = np.array(Transformation([MeanMatrix[0:NumberOfAtoms]], Inputtype="Barycenter",
+                                                 Transformationfunction=TransformationFunction))
+            print("The mean barycenter is  ", Barycenter ,  "\n")
 
         if i%500==499:
             with open('Square.npy', 'wb') as f:
                 np.save(f, MeanMatrix)
                 np.save(f, CovMatrix)
+
     return MeanMatrix, CovMatrix
