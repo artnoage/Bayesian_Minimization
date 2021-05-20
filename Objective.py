@@ -20,6 +20,8 @@ def LogLikelihood(Batch, args):
     CostMatrix = CostMatrix + np.zeros((len(Batch), NumberOfArchetypes, 1))
     Archetypes = Archetypes + np.zeros((len(Batch), NumberOfArchetypes, 1))
 
+
+
     #Isolating the Barycenter from the rest of the input
     Barycenter         = Batch[:,:NumberOfAtoms]
 
@@ -53,14 +55,15 @@ def LogLikelihood(Batch, args):
     # This punishes negative values.
 
     if args[1]!= "Normalized Exponential":
-        ReluData = np.sum(np.minimum(Batch-0.001, np.zeros((len(Batch),len(Batch[0])))), axis=1)
+        ReluData = -np.sum(np.minimum(Batch, np.zeros((len(Batch),len(Batch[0])))), axis=1)
+
     else :
         ReluData=0
 
 
-    TotalCost = TransportationCost + 2*ArchetypePenalty + 2*BarycenterPenalty
+    TotalCost = TransportationCost + 10*ArchetypePenalty + 10*BarycenterPenalty +100*ReluData
 
-    return 100*TotalCost
+    return 0.5*TotalCost
 
 
 
