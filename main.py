@@ -4,7 +4,7 @@ from Algorithm import *
 from Loglikelihood import *
 
 NumberOfIterations=100000
-SampleSize=1000
+SampleSize=3000
 
 
 #Provide the Images/Archetypes
@@ -17,15 +17,16 @@ Archetypes   = np.array([A1, A2])
 
 #Initializing Mean and Covariance
 
-MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="New",CovMatrix="New",Factor=10**(-5))
+MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="Load",CovMatrix="New",Factor=10**(-5))
 
 
 
 #Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square, Entropy and RevEntropy. PriorType= Gaussian.
+# If you get an error fro the weights, it means that the Loglikelihood values are big (remember that they go through exponential).
 
 MeanMatrix, CovMatrix = OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Square",PriorType="Gaussian",
                               SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
-                              CovMatrixInitialization=CovMatrixInitialization)
+                              CovMatrixInitialization=CovMatrixInitialization, LoglikelihoodFactor=0.5)
 
 
 #Visualisation

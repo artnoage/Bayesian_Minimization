@@ -27,7 +27,7 @@ def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
     return MeanMatrixInitialization, CovMatrixInitialization
 
 
-def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization):
+def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, LoglikelihoodFactor):
     """This is the main Algorithm. In every iteration it samples from the previous Gaussian, passes the samples through
     the likelihood and then calculates the mean and covariance for the Gaussian that fits the weighted samples the most.
     It saves the Mean and Covariance in the end, in case you want to rerun the code with something modified. There is also
@@ -44,11 +44,11 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
 
     for i in range(NumberOfIterations):
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
-        LogLikelihoodValues = LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
+        LogLikelihoodValues = LoglikelihoodFactor*LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
         Weights = np.exp(-LogLikelihoodValues)
         MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
         CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
-        CovNormal="Id"
+        CovNormal="Simple"
 
         if CovNormal=="Simple":
             Factor1=Factor/np.average(np.diag(CovMatrix))
