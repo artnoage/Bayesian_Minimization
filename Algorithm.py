@@ -27,7 +27,7 @@ def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
     return MeanMatrixInitialization, CovMatrixInitialization
 
 
-def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, LoglikelihoodFactor):
+def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, NormalizeCovariance, LoglikelihoodFactor):
     """This is the main Algorithm. In every iteration it samples from the previous Gaussian, passes the samples through
     the likelihood and then calculates the mean and covariance for the Gaussian that fits the weighted samples the most.
     It saves the Mean and Covariance in the end, in case you want to rerun the code with something modified. There is also
@@ -50,7 +50,7 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         LogLikelihoodValues = LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
 
         print("The minimum loglikelihood value is ",
-              np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
+              np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-100:][::-1]]), "\n")
         LoglikelihoodValuesNormalized=LoglikelihoodFactor*LogLikelihoodValues
 
         Weights = np.exp(-LoglikelihoodValuesNormalized)
@@ -60,8 +60,7 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
 
         #If we like, we normalize a bit.
-        CovNormal="Yes"
-        if CovNormal=="Yes":
+        if NormalizeCovariance=="Yes":
             CovMatrix=Factor*(CovMatrix/np.max(np.diag(CovMatrix)))
 
 

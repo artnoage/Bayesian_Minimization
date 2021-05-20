@@ -4,7 +4,7 @@ from Algorithm import *
 from Loglikelihood import *
 
 NumberOfIterations=100000
-SampleSize=3000
+SampleSize=5000
 
 
 #Provide the Images/Archetypes
@@ -22,11 +22,13 @@ MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, Mea
 
 
 #Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square, Entropy and RevEntropy. PriorType= Gaussian.
-# If you get an error fro the weights, it means that the Loglikelihood values are big (remember that they go through exponential).
+# If you get an error regarding the weights, it means that the Loglikelihood values are big (remember that they go through exponential).
+# If the algorithm stacks then restarting with a smaller Factor may help. Normalizing Covarance also helps some times.
+# If you use any transformation change the factor to 1 and reduce until you start seeing decenting numbers.
 
 MeanMatrix, CovMatrix = OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Square",PriorType="Gaussian",
                               SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
-                              CovMatrixInitialization=CovMatrixInitialization, LoglikelihoodFactor=0.5)
+                              CovMatrixInitialization=CovMatrixInitialization, NormalizeCovariance="Yes", LoglikelihoodFactor=0.1)
 
 
 #Visualisation
