@@ -1,7 +1,7 @@
 import numpy as np
 from VisualisationBarycenter import *
 from Algorithm import *
-from Objective import *
+from Loglikelihood import *
 
 NumberOfIterations=100000
 SampleSize=1000
@@ -17,7 +17,7 @@ Archetypes   = np.array([A1, A2])
 
 #Initializing Mean and Covariance
 
-MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="New",CovMatrix="New",Factor=10**(-4))
+MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="New",CovMatrix="New",Factor=10**(-5))
 
 
 

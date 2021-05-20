@@ -1,4 +1,4 @@
-from Objective import *
+from Loglikelihood import *
 from Gaussians import *
 
 def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
@@ -48,7 +48,7 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         Weights = np.exp(-LogLikelihoodValues)
         MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
         CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
-        CovNormal="Simple"
+        CovNormal="Id"
 
         if CovNormal=="Simple":
             Factor1=Factor/np.average(np.diag(CovMatrix))
