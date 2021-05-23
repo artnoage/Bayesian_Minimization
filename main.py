@@ -1,10 +1,11 @@
 import numpy as np
+import time as time
 from VisualisationBarycenter import *
 from Algorithm import *
 from Loglikelihood import *
 
-NumberOfIterations=100000
-SampleSize=5000
+NumberOfIterations=1
+SampleSize=1000
 
 
 #Provide the Images/Archetypes
@@ -17,18 +18,18 @@ Archetypes   = np.array([A1, A2])
 
 #Initializing Mean and Covariance
 
-MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="Load",CovMatrix="New",Factor=10**(-4))
+MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="New",CovMatrix="New",Factor=10**(-4))
 
 
 
-#Transformation is Normalized,Exponential,Normalized Exponential and No Transformation. Penalty types are Square, Entropy and RevEntropy. PriorType= Gaussian.
+#Transformation is Sigmoid ,Exponential,Normalized Exponential and No Transformation. Penalty types are Square, Entropy and RevEntropy. PriorType= Gaussian.
 # If you get an error regarding the weights, it means that the Loglikelihood values are big (remember that they go through exponential).
 # If the algorithm stacks then restarting with a smaller Factor may help. Normalizing Covarance also helps some times.
 # If you use any transformation change the factor to 1 and reduce until you start seeing decenting numbers.
 
-MeanMatrix, CovMatrix = OneStep(Archetypes, TransformationFunction="No", BarycenterPenalty="Square", ArchetypePenalty="Square",PriorType="Gaussian",
-                              SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
-                              CovMatrixInitialization=CovMatrixInitialization, NormalizeCovariance="Yes", LoglikelihoodFactor=0.1)
+MeanMatrix, CovMatrix = OneStep(Archetypes, TransformationFunction="Sigmoid", BarycenterPenalty="Square", ArchetypePenalty="Square",
+                                ReluPenalty="Yes", PriorType="Gaussian", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
+                              CovMatrixInitialization=CovMatrixInitialization, NormalizeCovariance="Yes", LoglikelihoodFactor=0.001)
 
 
 #Visualisation

@@ -1,5 +1,6 @@
 from Loglikelihood import *
 from Gaussians import *
+import time as time
 
 def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
 
@@ -27,7 +28,7 @@ def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
     return MeanMatrixInitialization, CovMatrixInitialization
 
 
-def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, NormalizeCovariance, LoglikelihoodFactor):
+def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, NormalizeCovariance, LoglikelihoodFactor):
     """This is the main Algorithm. In every iteration it samples from the previous Gaussian, passes the samples through
     the likelihood and then calculates the mean and covariance for the Gaussian that fits the weighted samples the most.
     It saves the Mean and Covariance in the end, in case you want to rerun the code with something modified. There is also
@@ -41,13 +42,29 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     MeanMatrix = MeanMatrixInitialization
     CovMatrix = CovMatrixInitialization
     Factor = np.max(np.diag(CovMatrix))
-
+    args=(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty)
+    LoglikelihoodA=  Loglikelihood1(args).Loglikelihoodsimple
+    LoglikelihoodB = Loglikelihood2(args).Loglikelihoodsimple
     for i in range(NumberOfIterations):
 
         # Here we generate the Samples and calculate the  weights
 
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
-        LogLikelihoodValues = LogLikelihood(Samples, (Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty))
+
+
+        startTime = time.time()
+        LogLikelihoodValues2 = np.apply_along_axis(LoglikelihoodB, 1, Samples)
+        executionTime = (time.time() - startTime)
+        print('Execution time in seconds: ' + str(executionTime))
+
+
+        startTime = time.time()
+        LogLikelihoodValues = LoglikelihoodA(Samples)
+        executionTime = (time.time() - startTime)
+        print('Execution time in seconds: ' + str(executionTime))
+
+
+        print(LogLikelihoodValues2-LogLikelihoodValues)
 
         print("The minimum loglikelihood value is ",
               np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-100:][::-1]]), "\n")
