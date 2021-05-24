@@ -43,28 +43,17 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     CovMatrix = CovMatrixInitialization
     Factor = np.max(np.diag(CovMatrix))
     args=(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty)
-    LoglikelihoodA=  Loglikelihood1(args).Loglikelihoodsimple
-    LoglikelihoodB = Loglikelihood2(args).Loglikelihoodsimple
+    Loglikelihood=  Objective(args).ParametrizedObjective
+    StartTime=0
     for i in range(NumberOfIterations):
-
+        executionTime = (time.time() - StartTime)
+        print('Execution time in seconds: ' + str(executionTime))
+        StartTime = time.time()
         # Here we generate the Samples and calculate the  weights
 
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
 
-
-        startTime = time.time()
-        LogLikelihoodValues2 = np.apply_along_axis(LoglikelihoodB, 1, Samples)
-        executionTime = (time.time() - startTime)
-        print('Execution time in seconds: ' + str(executionTime))
-
-
-        startTime = time.time()
-        LogLikelihoodValues = LoglikelihoodA(Samples)
-        executionTime = (time.time() - startTime)
-        print('Execution time in seconds: ' + str(executionTime))
-
-
-        print(LogLikelihoodValues2-LogLikelihoodValues)
+        LogLikelihoodValues = Loglikelihood(Samples)
 
         print("The minimum loglikelihood value is ",
               np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-100:][::-1]]), "\n")
@@ -73,8 +62,7 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         Weights = np.exp(-LoglikelihoodValuesNormalized)
 
         #  Here we find the best fit for Mean and Covariance.
-        MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
-        CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
+        MeanMatrix, CovMatrix = GaussianReconstruction(PriorType, Samples, Weights)
 
         #If we like, we normalize a bit.
         if NormalizeCovariance=="Yes":

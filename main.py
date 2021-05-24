@@ -4,8 +4,8 @@ from VisualisationBarycenter import *
 from Algorithm import *
 from Loglikelihood import *
 
-NumberOfIterations=1
-SampleSize=1000
+NumberOfIterations=10
+SampleSize=10000
 
 
 #Provide the Images/Archetypes
