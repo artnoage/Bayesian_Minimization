@@ -1,4 +1,5 @@
 from Loglikelihood import *
+import cupy as cp
 from Gaussians import *
 import time as time
 
@@ -15,16 +16,16 @@ def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
 
     if MeanMatrix=="Load":
         with open('Square.npy', 'rb') as g:
-            MeanMatrixInitialization=np.load(g)
+            MeanMatrixInitialization=cp.load(g)
     elif MeanMatrix=="New":
-        MeanMatrixInitializationPart1=np.ones(NumberOfAtoms)/NumberOfAtoms
-        MeanMatrixInitializationPart2=np.ones((NumberOfAtoms**2)*NumberOfArchetypes)/(NumberOfAtoms**2)
-        MeanMatrixInitialization=np.concatenate((MeanMatrixInitializationPart1,MeanMatrixInitializationPart2),axis=0)
+        MeanMatrixInitializationPart1= cp.ones(NumberOfAtoms) / NumberOfAtoms
+        MeanMatrixInitializationPart2= cp.ones((NumberOfAtoms ** 2) * NumberOfArchetypes) / (NumberOfAtoms ** 2)
+        MeanMatrixInitialization=cp.concatenate((MeanMatrixInitializationPart1, MeanMatrixInitializationPart2), axis=0)
     if CovMatrix=="Load":
         with open('Square.npy', 'rb') as g:
-            CovMatrixInitialization=np.load(g)
+            CovMatrixInitialization=cp.load(g)
     elif CovMatrix=="New":
-        CovMatrixInitialization = Factor*np.identity(TotalDimension)
+        CovMatrixInitialization = Factor * cp.identity(TotalDimension)
     return MeanMatrixInitialization, CovMatrixInitialization
 
 
@@ -41,54 +42,47 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
     MeanMatrix = MeanMatrixInitialization
     CovMatrix = CovMatrixInitialization
-    Factor = np.max(np.diag(CovMatrix))
+    Factor = cp.max(cp.diag(CovMatrix))
     args=(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty)
     LoglikelihoodA=  Loglikelihood1(args).Loglikelihoodsimple
     LoglikelihoodB = Loglikelihood2(args).Loglikelihoodsimple
+    StartTime=0
     for i in range(NumberOfIterations):
 
         # Here we generate the Samples and calculate the  weights
 
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
 
-
-        startTime = time.time()
-        LogLikelihoodValues2 = np.apply_along_axis(LoglikelihoodB, 1, Samples)
-        executionTime = (time.time() - startTime)
+        executionTime = (time.time() - StartTime)
         print('Execution time in seconds: ' + str(executionTime))
-
-
-        startTime = time.time()
+        StartTime = time.time()
         LogLikelihoodValues = LoglikelihoodA(Samples)
-        executionTime = (time.time() - startTime)
-        print('Execution time in seconds: ' + str(executionTime))
 
 
-        print(LogLikelihoodValues2-LogLikelihoodValues)
+        #print("The minimum loglikelihood value is ",
+        #      np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-100:][::-1]]), "\n")
 
-        print("The minimum loglikelihood value is ",
-              np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-100:][::-1]]), "\n")
         LoglikelihoodValuesNormalized=LoglikelihoodFactor*LogLikelihoodValues
 
-        Weights = np.exp(-LoglikelihoodValuesNormalized)
+        Weights = cp.exp(-LoglikelihoodValuesNormalized)
 
         #  Here we find the best fit for Mean and Covariance.
-        MeanMatrix = np.array(GaussianReconstruction(PriorType, Samples, Weights)[0])
-        CovMatrix  = np.array(GaussianReconstruction(PriorType, Samples, Weights)[1])
+        MeanMatrix, CovMatrix = GaussianReconstruction(PriorType, Samples, Weights)
+
 
         #If we like, we normalize a bit.
         if NormalizeCovariance=="Yes":
-            CovMatrix=Factor*(CovMatrix/np.max(np.diag(CovMatrix)))
+            CovMatrix=Factor*(CovMatrix / cp.max(cp.diag(CovMatrix)))
 
 
         if i%100==99:
-            Barycenter = np.array(Transformation([MeanMatrix[0:NumberOfAtoms]], Inputtype="Barycenter",
+            Barycenter = cp.array(Transformation([MeanMatrix[0:NumberOfAtoms]], Inputtype="Barycenter",
                                                  Transformationfunction=TransformationFunction))
             print("The mean barycenter is  ", Barycenter ,  "\n")
 
         if i%500==499:
             with open('Square.npy', 'wb') as f:
-                np.save(f, MeanMatrix)
-                np.save(f, CovMatrix)
+                cp.save(f, MeanMatrix)
+                cp.save(f, CovMatrix)
 
     return MeanMatrix, CovMatrix

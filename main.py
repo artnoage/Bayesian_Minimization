@@ -1,19 +1,18 @@
-import numpy as np
-import time as time
+import cupy as cp
 from VisualisationBarycenter import *
 from Algorithm import *
 from Loglikelihood import *
 
-NumberOfIterations=1
-SampleSize=1000
+NumberOfIterations=10
+SampleSize=10000
 
 
 #Provide the Images/Archetypes
-A1=np.concatenate((np.ones(4), np.zeros(12)),axis=0)
-A1=A1/np.sum(A1)
-A2=np.concatenate((np.zeros(12),np.ones(4)),axis=0)
-A2=A2/np.sum(A2)
-Archetypes   = np.array([A1, A2])
+A1=cp.concatenate((cp.ones(4), cp.zeros(12)), axis=0)
+A1= A1 / cp.sum(A1)
+A2=cp.concatenate((cp.zeros(12), cp.ones(4)), axis=0)
+A2= A2 / cp.sum(A2)
+Archetypes   = cp.array([A1, A2])
 
 
 #Initializing Mean and Covariance
