@@ -54,30 +54,32 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
         #executionTime = (time.time() - StartTime)
         #print('Execution time in seconds: ' + str(executionTime))
         #StartTime = time.time()
+
         LogLikelihoodValues = Loglikelihood(Samples)
 
-
-        print("The minimum loglikelihood value is ",cp.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-10:][::-1]]), "\n")
+        #print("The minimum loglikelihood value is ",cp.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
 
         LoglikelihoodValuesNormalized=LoglikelihoodFactor*LogLikelihoodValues
-
         Weights = cp.exp(-LoglikelihoodValuesNormalized)
+        #Weights =cp.array(Weights)
 
         #  Here we find the best fit for Mean and Covariance.
         MeanMatrix, CovMatrix = GaussianReconstruction(PriorType, Samples, Weights)
-
+        #CovMatrix=np.identity(TotalDimension)/100
 
         #If we like, we normalize a bit.
         if NormalizeCovariance=="Yes":
             CovMatrix=Factor*(CovMatrix / cp.max(cp.diag(CovMatrix)))
 
 
-        if i%100==99:
+        if i%50==49:
+            print("The minimum loglikelihood value is ",
+                  cp.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
             Barycenter = cp.array(Transformation(cp.array(MeanMatrix[0:NumberOfAtoms]), Inputtype="Barycenter",
                                                  Transformationfunction=TransformationFunction))
             print("The mean barycenter is  ", Barycenter ,  "\n")
 
-        if i%100==99:
+        if i%1000==999:
             with open('Square.npy', 'wb') as f:
                 cp.save(f, MeanMatrix)
                 cp.save(f, CovMatrix)
