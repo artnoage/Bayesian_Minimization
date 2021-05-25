@@ -10,7 +10,7 @@ def SampleGeneration(PriorType,MeanMatrix,CovMatrix,samplesize):
 
 def GaussianReconstruction(PriorType,Samples,Weights):
     if PriorType=="Gaussian":
-        MeanMatrix = np.ma.average(Samples, axis=0, weights=Weights)
+        MeanMatrix = np.average(Samples, axis=0, weights=Weights)
         CovMatrix = np.cov(Samples.T,aweights=Weights)
     return MeanMatrix, CovMatrix
 

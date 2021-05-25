@@ -46,10 +46,6 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     Loglikelihood=  Objective(args).ParametrizedObjective
     StartTime=0
     for i in range(NumberOfIterations):
-        executionTime = (time.time() - StartTime)
-        print('Execution time in seconds: ' + str(executionTime))
-        StartTime = time.time()
-        # Here we generate the Samples and calculate the  weights
 
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
 
@@ -74,9 +70,10 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
                                                  Transformationfunction=TransformationFunction))
             print("The mean barycenter is  ", Barycenter ,  "\n")
 
-        if i%500==499:
+        if i%100==1:
             with open('Square.npy', 'wb') as f:
                 np.save(f, MeanMatrix)
                 np.save(f, CovMatrix)
+
 
     return MeanMatrix, CovMatrix
