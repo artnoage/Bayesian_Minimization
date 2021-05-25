@@ -3,21 +3,23 @@ from VisualisationBarycenter import *
 from Algorithm import *
 from Loglikelihood import *
 
-NumberOfIterations=10
+NumberOfIterations=100000
 SampleSize=10000
 
 
 #Provide the Images/Archetypes
-A1=cp.concatenate((cp.ones(4), cp.zeros(12)), axis=0)
+
+A1=cp.concatenate((cp.ones(3), cp.zeros(6)), axis=0)
 A1= A1 / cp.sum(A1)
-A2=cp.concatenate((cp.zeros(12), cp.ones(4)), axis=0)
+A2=cp.concatenate((cp.zeros(6), cp.ones(3)), axis=0)
 A2= A2 / cp.sum(A2)
-Archetypes   = cp.array([A1, A2])
-
-
+Archetypes  = cp.array([A1, A2,A1,A1,A2, A2,A1])
+#B=cp.random.randint(0,2,10)
+#Archetypes=cp.take(Archetypes,B,0)
+#print(Archetypes[0])
 #Initializing Mean and Covariance
 
-MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="New",CovMatrix="New",Factor=10**(-4))
+MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, MeanMatrix="Load",CovMatrix="Load",Factor=0.001)
 
 
 
@@ -28,7 +30,7 @@ MeanMatrixInitialization, CovMatrixInitialization=initialisation(Archetypes, Mea
 
 MeanMatrix, CovMatrix = OneStep(Archetypes, TransformationFunction="Sigmoid", BarycenterPenalty="Square", ArchetypePenalty="Square",
                                 ReluPenalty="Yes", PriorType="Gaussian", SampleSize=SampleSize, NumberOfIterations=NumberOfIterations,MeanMatrixInitialization=MeanMatrixInitialization,
-                              CovMatrixInitialization=CovMatrixInitialization, NormalizeCovariance="Yes", LoglikelihoodFactor=0.001)
+                              CovMatrixInitialization=CovMatrixInitialization, NormalizeCovariance="Yes", LoglikelihoodFactor=0.00001)
 
 
 #Visualisation

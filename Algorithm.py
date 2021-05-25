@@ -13,19 +13,17 @@ def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
     NumberOfArchetypes = len(Archetypes)
     PlanSize = NumberOfAtoms ** 2
     TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
-
-    if MeanMatrix=="Load":
-        with open('Square.npy', 'rb') as g:
+    with open('Square.npy', 'rb') as g:
+        if MeanMatrix=="Load":
             MeanMatrixInitialization=cp.load(g)
-    elif MeanMatrix=="New":
-        MeanMatrixInitializationPart1= cp.ones(NumberOfAtoms) / NumberOfAtoms
-        MeanMatrixInitializationPart2= cp.ones((NumberOfAtoms ** 2) * NumberOfArchetypes) / (NumberOfAtoms ** 2)
-        MeanMatrixInitialization=cp.concatenate((MeanMatrixInitializationPart1, MeanMatrixInitializationPart2), axis=0)
-    if CovMatrix=="Load":
-        with open('Square.npy', 'rb') as g:
+        elif MeanMatrix=="New":
+            MeanMatrixInitializationPart1= cp.ones(NumberOfAtoms) / NumberOfAtoms
+            MeanMatrixInitializationPart2= cp.ones((NumberOfAtoms ** 2) * NumberOfArchetypes) / (NumberOfAtoms ** 2)
+            MeanMatrixInitialization=cp.concatenate((MeanMatrixInitializationPart1, MeanMatrixInitializationPart2), axis=0)
+        if CovMatrix=="Load":
             CovMatrixInitialization=cp.load(g)
-    elif CovMatrix=="New":
-        CovMatrixInitialization = Factor * cp.identity(TotalDimension)
+        elif CovMatrix=="New":
+            CovMatrixInitialization = Factor * cp.identity(TotalDimension)
     return MeanMatrixInitialization, CovMatrixInitialization
 
 
@@ -44,8 +42,8 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     CovMatrix = CovMatrixInitialization
     Factor = cp.max(cp.diag(CovMatrix))
     args=(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty)
-    LoglikelihoodA=  Loglikelihood1(args).Loglikelihoodsimple
-    LoglikelihoodB = Loglikelihood2(args).Loglikelihoodsimple
+    Loglikelihood=  Objectives(args).Cost
+
     StartTime=0
     for i in range(NumberOfIterations):
 
@@ -53,14 +51,13 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
 
         Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
 
-        executionTime = (time.time() - StartTime)
-        print('Execution time in seconds: ' + str(executionTime))
-        StartTime = time.time()
-        LogLikelihoodValues = LoglikelihoodA(Samples)
+        #executionTime = (time.time() - StartTime)
+        #print('Execution time in seconds: ' + str(executionTime))
+        #StartTime = time.time()
+        LogLikelihoodValues = Loglikelihood(Samples)
 
 
-        #print("The minimum loglikelihood value is ",
-        #      np.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-100:][::-1]]), "\n")
+        print("The minimum loglikelihood value is ",cp.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-10:][::-1]]), "\n")
 
         LoglikelihoodValuesNormalized=LoglikelihoodFactor*LogLikelihoodValues
 
@@ -76,13 +73,13 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
 
 
         if i%100==99:
-            Barycenter = cp.array(Transformation([MeanMatrix[0:NumberOfAtoms]], Inputtype="Barycenter",
+            Barycenter = cp.array(Transformation(cp.array(MeanMatrix[0:NumberOfAtoms]), Inputtype="Barycenter",
                                                  Transformationfunction=TransformationFunction))
             print("The mean barycenter is  ", Barycenter ,  "\n")
 
-        if i%500==499:
+        if i%100==99:
             with open('Square.npy', 'wb') as f:
                 cp.save(f, MeanMatrix)
                 cp.save(f, CovMatrix)
-
+            print("God saves us all")
     return MeanMatrix, CovMatrix
