@@ -67,7 +67,7 @@ class Objectives:
         else :
             ReluData=0
 
-        TotalCost = TransportationCost + 10*ArchetypePenalty + 20*BarycenterPenalty + 10*ReluData
+        TotalCost = TransportationCost + ArchetypePenalty + BarycenterPenalty + 10*ReluData
 
         return TotalCost
 

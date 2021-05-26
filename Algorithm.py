@@ -1,9 +1,11 @@
+import numpy as np
+
 from Loglikelihood import *
 import cupy as cp
 from Gaussians import *
 import time as time
 
-def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
+def initialisation(Archetypes, MeanMatrix, CovMatrix, Precision):
 
     '''Here we decide if we want to start with a new Mean and Covariance Matrix or if we want to load the old ones
     For new mean we create one that uses the uniform measures for both barycenter and plan. For the covariance matrix
@@ -14,20 +16,26 @@ def initialisation(Archetypes, MeanMatrix, CovMatrix, Factor):
     PlanSize = NumberOfAtoms ** 2
     TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
     with open('Square.npy', 'rb') as g:
+        A=cp.load(g)
+        B=cp.load(g)
+        C=cp.load(g)
         if MeanMatrix=="Load":
-            MeanMatrixInitialization=cp.load(g)
+            MeanMatrixInitialization=A
         elif MeanMatrix=="New":
             MeanMatrixInitializationPart1= cp.ones(NumberOfAtoms) / NumberOfAtoms
             MeanMatrixInitializationPart2= cp.ones((NumberOfAtoms ** 2) * NumberOfArchetypes) / (NumberOfAtoms ** 2)
             MeanMatrixInitialization=cp.concatenate((MeanMatrixInitializationPart1, MeanMatrixInitializationPart2), axis=0)
-        if CovMatrix=="Load":
-            CovMatrixInitialization=cp.load(g)
-        elif CovMatrix=="New":
-            CovMatrixInitialization = Factor * cp.identity(TotalDimension)
-    return MeanMatrixInitialization, CovMatrixInitialization
+        if  CovMatrix=="Load":
+            CovMatrixInitialization=B
+        if  Precision=="Load":
+            Precision=C
+        if  CovMatrix=="New":
+            CovMatrixInitialization = Precision*cp.identity(TotalDimension)
+    return MeanMatrixInitialization, CovMatrixInitialization, Precision
 
 
-def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty, PriorType, SampleSize, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, NormalizeCovariance, LoglikelihoodFactor):
+def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty, PriorType, SampleSize, SamplingNumber, NumberOfIterations, MeanMatrixInitialization, CovMatrixInitialization, NormalizeCovariance, ForcedPrecision,
+            LoglikelihoodFactor):
     """This is the main Algorithm. In every iteration it samples from the previous Gaussian, passes the samples through
     the likelihood and then calculates the mean and covariance for the Gaussian that fits the weighted samples the most.
     It saves the Mean and Covariance in the end, in case you want to rerun the code with something modified. There is also
@@ -40,48 +48,50 @@ def OneStep(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePena
     TotalDimension = NumberOfAtoms + NumberOfArchetypes * PlanSize
     MeanMatrix = MeanMatrixInitialization
     CovMatrix = CovMatrixInitialization
-    Factor = cp.max(cp.diag(CovMatrix))
     args=(Archetypes, TransformationFunction, BarycenterPenalty, ArchetypePenalty, ReluPenalty)
     Loglikelihood=  Objectives(args).Cost
 
     StartTime=0
     for i in range(NumberOfIterations):
-
+        Samples=SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
+        LoglikelihoodValues=Loglikelihood(Samples)
         # Here we generate the Samples and calculate the  weights
 
-        Samples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
+        for j in range(SamplingNumber):
+            TempSamples = SampleGeneration(PriorType, MeanMatrix, CovMatrix, SampleSize)
+            TempLogLikelihoodValues = Loglikelihood(TempSamples)
+            Samples=cp.concatenate((Samples,TempSamples),axis=0)
+            LoglikelihoodValues=cp.concatenate((LoglikelihoodValues,TempLogLikelihoodValues),axis=0)
+            Best=LoglikelihoodValues.argsort()[:SampleSize]
+            Samples=cp.take(Samples,Best,axis=0)
+            LoglikelihoodValues=cp.take(LoglikelihoodValues,Best,axis=0)
 
-        #executionTime = (time.time() - StartTime)
-        #print('Execution time in seconds: ' + str(executionTime))
-        #StartTime = time.time()
+        print(cp.min(LoglikelihoodValues))
 
-        LogLikelihoodValues = Loglikelihood(Samples)
-
-        #print("The minimum loglikelihood value is ",cp.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
-
-        LoglikelihoodValuesNormalized=LoglikelihoodFactor*LogLikelihoodValues
+        LoglikelihoodValuesNormalized=LoglikelihoodValues*LoglikelihoodFactor
         Weights = cp.exp(-LoglikelihoodValuesNormalized)
-        #Weights =cp.array(Weights)
+
 
         #  Here we find the best fit for Mean and Covariance.
         MeanMatrix, CovMatrix = GaussianReconstruction(PriorType, Samples, Weights)
-        #CovMatrix=np.identity(TotalDimension)/100
+        Precision=cp.max(cp.diag(CovMatrix))
+
 
         #If we like, we normalize a bit.
         if NormalizeCovariance=="Yes":
-            CovMatrix=Factor*(CovMatrix / cp.max(cp.diag(CovMatrix)))
+            CovMatrix=ForcedPrecision*(CovMatrix / Precision)
 
 
-        if i%50==49:
+        if  i%20==19:
             print("The minimum loglikelihood value is ",
-                  cp.mean(LogLikelihoodValues[LogLikelihoodValues.argsort()[-50:][::-1]]), "\n")
+                  cp.mean(LoglikelihoodValues[LoglikelihoodValues.argsort()[-50:][::-1]]), "\n")
             Barycenter = cp.array(Transformation(cp.array(MeanMatrix[0:NumberOfAtoms]), Inputtype="Barycenter",
                                                  Transformationfunction=TransformationFunction))
             print("The mean barycenter is  ", Barycenter ,  "\n")
-
-        if i%1000==999:
+            print("Saving...", "The Precision is", Precision)
             with open('Square.npy', 'wb') as f:
                 cp.save(f, MeanMatrix)
                 cp.save(f, CovMatrix)
-            print("God saves us all")
-    return MeanMatrix, CovMatrix
+                cp.save(f,Precision)
+
+    return MeanMatrix, CovMatrix, Precision
