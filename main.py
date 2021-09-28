@@ -14,7 +14,7 @@ A1=A1/np.sum(A1)
 A2=np.concatenate((np.zeros(12),np.ones(4)),axis=0)
 A2=A2/np.sum(A2)
 #Archetypes   = np.array([A1, A2])
-Archetypes  = np.array([A1, A2,A1,A1,A2, A2,A1])
+Archetypes  = np.array([A1, A2])
 
 #Initializing Mean and Covariance
 
